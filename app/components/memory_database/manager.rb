@@ -1,16 +1,6 @@
 # Manage Database Records via this singleton.
 class MemoryDatabase::Manager
-  class << self
-    attr_accessor :instance
-
-    def create
-      if self.class.instance.present?
-        raise ManagerSingletonError, 'Only Singleton'
-      end
-
-      @instance = self.new
-    end
-  end
+  include Singleton
 
   def initialize
     @data_mappers = {}
