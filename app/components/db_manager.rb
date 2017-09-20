@@ -9,4 +9,8 @@ class DbManager
   def [](table_name)
     @data_mappers[table_name]
   end
+
+  def []=(table_name, value)
+    @data_mappers[table_name] = value
+  end
 end
