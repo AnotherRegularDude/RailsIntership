@@ -5,7 +5,7 @@ class BookTest < ActiveSupport::TestCase
     DbManager.instance[Book.table_name] = []
   end
 
-  test 'create_book' do
+  test 'create book' do
     book = new_book
     book.save
 
@@ -13,17 +13,17 @@ class BookTest < ActiveSupport::TestCase
     assert_equal 1, Book.all.length
   end
 
-  test 'create_few_books' do
+  test 'create few books' do
     create_books
 
     assert_equal 10, Book.all.length
   end
 
-  test 'find_book_by_id' do
+  test 'find book_by id' do
     create_books
 
-    existed_book = Book.find_by_id 5
-    not_existed_book = Book.find_by_id 100_00
+    existed_book = Book.find 5
+    not_existed_book = Book.find 100_00
 
     assert_not_nil existed_book
     assert_equal 5, existed_book.id
@@ -31,7 +31,7 @@ class BookTest < ActiveSupport::TestCase
     assert_nil not_existed_book
   end
 
-  test 'find_books_by_ids' do
+  test 'find books_by ids' do
     create_books
     ids = [1, 2, 3, 4, 100]
 
@@ -39,7 +39,7 @@ class BookTest < ActiveSupport::TestCase
     assert_equal ids.length - 1, books.length
   end
 
-  test 'update_book' do
+  test 'update book' do
     book = new_book
     book.save
 
@@ -55,7 +55,7 @@ class BookTest < ActiveSupport::TestCase
     assert_equal title, Book.managed_data[0][:title]
   end
 
-  test 'update_book_through_attrs' do
+  test 'update book through attrs' do
     book = new_book
     book.save
 
@@ -73,7 +73,7 @@ class BookTest < ActiveSupport::TestCase
     assert_equal title, Book.managed_data[0][:title]
   end
 
-  test 'delete_book' do
+  test 'delete book' do
     create_books
     id = 5
 
@@ -83,7 +83,27 @@ class BookTest < ActiveSupport::TestCase
     assert_nil book.id
     assert_equal false, book.delete
     assert_nil Book.managed_data[id]
+  end
 
+  test 'select one book with title' do
+    create_books
+    id = 5
+
+    book = Book.find(id)
+    where_book, _ = Book.select_where(title: book.title)
+
+    assert_equal book.id, where_book.id
+  end
+
+  test 'select one book with author, description' do
+    create_books
+    id = 5
+
+    book = Book.find(id)
+    select_params = { description: book.description, author: book.author }
+    where_book, _ = Book.select_where(select_params)
+
+    assert_equal book.id, where_book.id
   end
 
   private

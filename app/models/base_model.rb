@@ -8,6 +8,10 @@ class BaseModel
       name.tableize
     end
 
+    def where_keys_to_select
+      {}
+    end
+
     def managed_data
       DbManager.instance[table_name]
     end
@@ -27,26 +31,38 @@ class BaseModel
 
     def find(find_value)
       if find_value.instance_of? Array
-        selected = find_value.map { |id| managed_data[id] }
-        selected.delete_if(&:nil?)
-        selected.each_with_index.map do |item, i|
-          new(**item, id: i)
+        selected = find_value.map do |id|
+          { **managed_data[id], id: id } if managed_data[id].present?
         end
+        selected.select!(&:present?)
+        selected.map { |item| new(item) }
       else
         selected = managed_data[find_value]
         new(**selected, id: find_value) if selected.present?
       end
     end
 
-    def find_by_id(id)
-      find(Integer(id))
-    end
-
     def find_by_id!(id)
-      record = find_by_id(id)
+      record = find(id)
       raise ActiveRecord::RecordNotFound if record.nil?
 
       record
+    end
+
+    def select_where(query)
+      sliced_query = query.slice!(where_keys_to_select)
+      sliced_query.reject! { |_, value| value.nil? }
+      selected_items = managed_data.each_with_index.map do |item, i|
+        return nil if item.nil?
+
+        selected = true
+        sliced_query.each { |k, v| selected = false if item[k] != v }
+
+        { **item, id: i } if selected
+      end
+      selected_items.select!(&:present?)
+
+      selected_items.map { |item| new(item) }
     end
 
     def all

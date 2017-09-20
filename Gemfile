@@ -40,6 +40,8 @@ group :development, :test do
 
   # Use faker to generate data
   gem 'faker', :git => 'git://github.com/stympy/faker.git', :branch => 'master'
+  gem 'rails-perftest'
+  gem 'ruby-prof'
 end
 
 group :development do
