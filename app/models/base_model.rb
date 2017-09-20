@@ -1,3 +1,4 @@
+# Base Model With DB Logic
 class BaseModel
   include ActiveModel::Model
   include ActiveModel::Conversion
@@ -7,24 +8,49 @@ class BaseModel
       name.tableize
     end
 
-    def data_manager
-      MemoryDatabase::Manager.instance[table_name]
+    def managed_data
+      DbManager.instance[table_name]
     end
 
-    def find(find_query)
-      results = data_manager.find(find_query)
-      results.each { |item| new(item) }
+    def find(find_value)
+      if find_value.instance_of? Array
+        selected = find_value.map { |id| managed_data[id] }
+        selected.each_with_index.map do |item, i|
+          new(**item, id: i)
+        end
+      else
+        selected = managed_data[find_value]
+        if selected.present?
+          new(**selected, id: find_value)
+        else
+          nil
+        end
+      end
     end
 
-    def find_one(find_query)
-      result = data_manager.find_one(find_query)
-      return nil if result.nil?
+    def find_by_id!(id)
+      record = find(Integer(id))
+      raise ActiveRecord::RecordNotFound if record.nil?
 
-      new(result)
+      record
+    end
+
+    def all
+      managed_data.each_with_index.map do |item, i|
+        new(**item, id: i)
+      end
     end
   end
 
+  attr_accessor :id
+
+  def attributes
+    {}
+  end
+
   def save
-    self.class.data_manager.insert_one(attributes)
+    @id = self.class.managed_data.length
+
+    self.class.managed_data << attributes
   end
 end

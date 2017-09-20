@@ -3,5 +3,5 @@ class Book < BaseModel
     { title: @title, description: @description, author: @author }
   end
 
-  attr_accessor :id, :title, :description, :author
+  attr_accessor :title, :description, :author
 end
