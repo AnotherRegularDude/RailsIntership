@@ -1,10 +1,8 @@
-require 'test_helper'
+require 'benchmark_helper'
 require 'rails/performance_test_help'
 
 class BookModelTest < ActionDispatch::PerformanceTest
   def setup
-    self.profile_options = { metrics: [:wall_time] }
-
     params_array = []
     custom_book = { title: 'bench', description: 'bench', author: 'bench' }
 
@@ -13,7 +11,7 @@ class BookModelTest < ActionDispatch::PerformanceTest
     end
 
     Book.create(book_params)
-    Book.create(title: 'bench', description: 'bench', author: 'bench')
+    Book.create(custom_book)
   end
 
   test 'create 10_000 books' do
