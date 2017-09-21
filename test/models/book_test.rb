@@ -3,6 +3,7 @@ require 'test_helper'
 class BookTest < ActiveSupport::TestCase
   setup do
     DbManager.instance[Book.table_name] = {}
+    IndexManager.instance[Book.table_name] = {}
   end
 
   test 'create book' do
@@ -122,6 +123,49 @@ class BookTest < ActiveSupport::TestCase
 
     assert_equal 20, paginated_books.length
     assert_nil nil_paginated
+  end
+
+  test 'insert book, check fields indexed' do
+    book = new_book
+    book.save
+
+    assert_equal book.id, Book.managed_index[:title][book.title][0]
+    assert_equal book.id, Book.managed_index[:author][book.author][0]
+  end
+
+  test 'update book, check fields indexed' do
+    create_books
+    book = Book.all[1]
+    new_title = 'My title'
+
+    book.update(title: new_title)
+
+    assert Book.managed_index[:title][book.title].include? book.id
+    assert Book.managed_index[:author][book.author].include? book.id
+  end
+
+  test 'delete book, check indexes deleted' do
+    create_books
+    book = Book.all[1]
+    id = book.id
+
+    book.delete
+
+    assert_not Book.managed_index[:title][book.title].include? id
+    assert_not Book.managed_index[:author][book.author].include? id
+  end
+
+  test 'delete book with changed data, check indexed' do
+    create_books
+    book = Book.all[1]
+    id = book.id
+    author = book.author
+
+    book.author = 'Another Author'
+    book.delete
+
+    assert_not Book.managed_index[:title][book.title].include? id
+    assert_not Book.managed_index[:author][author].include? id
   end
 
   private

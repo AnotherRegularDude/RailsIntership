@@ -1,7 +1,7 @@
 # Base Model With DB Logic
 class BaseModel
+  include ActiveModel::Dirty
   include ActiveModel::Model
-  include ActiveModel::Conversion
 
   class << self
     def table_name
@@ -10,6 +10,10 @@ class BaseModel
 
     def managed_data
       DbManager.instance[table_name]
+    end
+
+    def managed_index
+      IndexManager.instance[table_name]
     end
 
     def create(params)
@@ -66,13 +70,24 @@ class BaseModel
     end
   end
 
-  attr_accessor :id
+  define_attribute_methods :id
+  attr_reader :id
+
+  def id=(value)
+    id_will_change! unless @id == value || @id.nil?
+
+    @id = value
+  end
 
   def attributes
     {}
   end
 
   def attributes=(value)
+  end
+
+  def indexed_fields
+    []
   end
 
   def persisted?
@@ -84,6 +99,12 @@ class BaseModel
 
     self.id = object_id
     self.class.managed_data[id] = attributes
+
+    indexed_fields.each do |field_name|
+      insert_into_index(field_name)
+    end
+
+    changes_applied
   end
 
   def update(attributes = [])
@@ -91,16 +112,46 @@ class BaseModel
 
     self.attributes = attributes if attributes.present?
     self.class.managed_data[id] = self.attributes
+    indexed_fields.each { |field_name| update_at_index(field_name) }
 
+    changes_applied
     true
   end
 
   def delete
     return false if id.nil?
 
+    indexed_fields.each { |field| delete_at_index(field) }
     self.class.managed_data.delete(id)
-    self.id = nil
+    @id = nil
 
     true
+  end
+
+  protected
+
+  def insert_into_index(field_name)
+    self.class.managed_index[field_name] ||= {}
+    field_index = self.class.managed_index[field_name]
+
+    field_index[attributes[field_name]] ||= []
+    field_index[attributes[field_name]] << id
+  end
+
+  def update_at_index(field_name)
+    return unless send("#{field_name}_changed?")
+    field_index = self.class.managed_index[field_name]
+    prev_value, new_value = changes[field_name]
+
+    field_index[new_value] ||= []
+    field_index[prev_value].delete(id)
+    field_index[new_value] << id
+  end
+
+  def delete_at_index(field_name)
+    field_index = self.class.managed_index[field_name]
+    restore_attributes
+
+    field_index[attributes[field_name]].delete(id)
   end
 end

@@ -1,4 +1,4 @@
-# For working with ActiveModel pagination via BaseModel#page.
+# For working with ActiveModel pagination via BaseModel.
 class Paginator < Delegator
   attr_accessor :per_page
 
