@@ -25,7 +25,7 @@ class BookModelTest < ActionDispatch::PerformanceTest
   end
 
   test 'find 9_000 books of 10_000 books' do
-    ids = 1..9000
+    ids = Book.managed_data.keys[1..9000]
     Book.find(ids.to_a)
   end
 
@@ -34,8 +34,8 @@ class BookModelTest < ActionDispatch::PerformanceTest
   end
 
   test 'delete 9_000 boks of 10_000 books' do
-    ids = 1..9000
-    books = Book.find(ids.to_a)
+    ids = Book.managed_data.keys[1..9000]
+    books = Book.find(ids)
 
     books.each { |book| book.delete }
   end

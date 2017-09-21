@@ -7,6 +7,9 @@
 * [] -> {} **✓**
 * Add basic validations to model **✓**
 * Read **Explain Analyzes**
-* Read **Limit and Offsets**
-* Read **O2**
+* Read **Limit and Offsets** **✓** 
+* Read **Complexity of algorithms** **✓**
+* Make **Pagination** for models **✓**
+* Make **Indexes** for models
+* Make **Search with indexes** for models
 * Make **CRUD** on *Active Model* with *this* database

@@ -32,7 +32,7 @@ class BaseModel
         end
 
         selected.select(&:present?)
-        selected.map { |item| new(item) }
+        Paginator.new(selected.map { |item| new(item) })
       else
         selected = managed_data[find_value]
         new(**selected, id: find_value) if selected.present?
@@ -55,11 +55,14 @@ class BaseModel
       end
 
       selected_items.select(&:present?)
-      selected_items.map { |item| new(item) }
+      Paginator.new(selected_items.map { |item| new(item) })
     end
 
     def all
-      managed_data.map { |key, value| new(**value, id: key) }
+      data_to_paginate = managed_data.map do |key, value|
+        new(**value, id: key)
+      end
+      Paginator.new(data_to_paginate)
     end
   end
 

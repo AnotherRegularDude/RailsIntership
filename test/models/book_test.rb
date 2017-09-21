@@ -114,6 +114,16 @@ class BookTest < ActiveSupport::TestCase
     assert_not bad_book.save
   end
 
+  test 'play with pagination' do
+    create_books 1000
+
+    paginated_books = Book.all.page
+    nil_paginated = Book.all.page 1000
+
+    assert_equal 20, paginated_books.length
+    assert_nil nil_paginated
+  end
+
   private
 
   def book_params
