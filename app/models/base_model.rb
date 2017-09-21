@@ -34,7 +34,8 @@ class BaseModel
         selected = find_value.map do |id|
           { **managed_data[id], id: id } if managed_data[id].present?
         end
-        selected.select!(&:present?)
+
+        selected.select(&:present?)
         selected.map { |item| new(item) }
       else
         selected = managed_data[find_value]
@@ -50,25 +51,19 @@ class BaseModel
     end
 
     def select_where(query)
-      sliced_query = query.slice!(where_keys_to_select)
-      sliced_query.reject! { |_, value| value.nil? }
-      selected_items = managed_data.each_with_index.map do |item, i|
-        return nil if item.nil?
-
+      selected_items = managed_data.map do |key, value|
         selected = true
-        sliced_query.each { |k, v| selected = false if item[k] != v }
+        query.each { |k, v| selected = false if value[k] != v }
 
-        { **item, id: i } if selected
+        { **value, id: key } if selected
       end
-      selected_items.select!(&:present?)
 
+      selected_items.select(&:present?)
       selected_items.map { |item| new(item) }
     end
 
     def all
-      managed_data.each_with_index.map do |item, i|
-        new(**item, id: i)
-      end
+      managed_data.map { |key, value| new(**value, id: key) }
     end
   end
 
@@ -82,9 +77,9 @@ class BaseModel
   end
 
   def save
-    @id = self.class.managed_data.length
+    @id = object_id
 
-    self.class.managed_data << attributes
+    self.class.managed_data[@id] = attributes
   end
 
   def update(attributes = [])
@@ -99,7 +94,7 @@ class BaseModel
   def delete
     return false if id.nil?
 
-    self.class.managed_data[id] = nil
+    self.class.managed_data.delete(id)
     @id = nil
 
     true

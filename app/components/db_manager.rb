@@ -3,7 +3,7 @@ class DbManager
   include Singleton
 
   def initialize
-    @data_mappers = Hash.new([])
+    @data_mappers = Hash.new({})
   end
 
   def [](table_name)
