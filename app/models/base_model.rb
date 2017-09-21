@@ -8,10 +8,6 @@ class BaseModel
       name.tableize
     end
 
-    def where_keys_to_select
-      {}
-    end
-
     def managed_data
       DbManager.instance[table_name]
     end
@@ -76,17 +72,22 @@ class BaseModel
   def attributes=(value)
   end
 
-  def save
-    @id = object_id
+  def persisted?
+    id.present?
+  end
 
-    self.class.managed_data[@id] = attributes
+  def save
+    return false unless valid?
+
+    self.id = object_id
+    self.class.managed_data[id] = attributes
   end
 
   def update(attributes = [])
-    return false if id.nil?
+    return false if id.nil? || !valid?
 
     self.attributes = attributes if attributes.present?
-    self.class.managed_data[@id] = self.attributes
+    self.class.managed_data[id] = self.attributes
 
     true
   end
@@ -95,7 +96,7 @@ class BaseModel
     return false if id.nil?
 
     self.class.managed_data.delete(id)
-    @id = nil
+    self.id = nil
 
     true
   end

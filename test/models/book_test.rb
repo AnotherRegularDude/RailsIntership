@@ -108,6 +108,12 @@ class BookTest < ActiveSupport::TestCase
     assert_equal book.id, where_book.id
   end
 
+  test 'create book with empty data' do
+    bad_book = Book.new
+
+    assert_not bad_book.save
+  end
+
   private
 
   def book_params

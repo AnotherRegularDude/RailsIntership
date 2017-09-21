@@ -1,10 +1,4 @@
 class Book < BaseModel
-  class << self
-    def where_keys_to_select
-      [:title, :description, :author]
-    end
-  end
-
   def attributes
     { title: @title, description: @description, author: @author }
   end
@@ -16,4 +10,6 @@ class Book < BaseModel
   end
 
   attr_accessor :title, :description, :author
+
+  validates :title, :description, :author, presence: true
 end
