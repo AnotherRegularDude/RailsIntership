@@ -1,4 +1,10 @@
 class Book < BaseModel
+  class << self
+    def indexed_fields
+      [:title, :author]
+    end
+  end
+
   define_attribute_methods :title, :description, :author
   attr_reader :title, :description, :author
 
@@ -29,10 +35,6 @@ class Book < BaseModel
     self.title = value[:title] || title
     self.description = value[:description] || description
     self.author = value[:author] || author
-  end
-
-  def indexed_fields
-    [:title, :author]
   end
 
   validates :title, :description, :author, presence: true

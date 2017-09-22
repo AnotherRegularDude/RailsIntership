@@ -168,6 +168,24 @@ class BookTest < ActiveSupport::TestCase
     assert_not Book.managed_index[:author][author].include? id
   end
 
+  test 'get ids from indexed fields' do
+    create_books { |item| item[:title] = 'MyTitle' }
+    create_books
+
+    with_index_books = Book.index_where(title: 'MyTitle')
+
+    assert_equal 10, with_index_books.length
+  end
+
+  test 'get not existed field in index' do
+    create_books
+    title = 'MyNotExistedTitle'
+
+    with_index_books = Book.index_where(title: title)
+
+    assert_empty with_index_books
+  end
+
   private
 
   def book_params
@@ -185,7 +203,10 @@ class BookTest < ActiveSupport::TestCase
   def create_books(number = 10)
     params_array = []
     number.times do
-      params_array << book_params
+      params = book_params
+
+      yield params if block_given?
+      params_array << params
     end
 
     Book.create(params_array)

@@ -16,6 +16,10 @@ class BaseModel
       IndexManager.instance[table_name]
     end
 
+    def indexed_fields
+      []
+    end
+
     def create(params)
       if params.instance_of? Array
         params.each do |book_params|
@@ -51,15 +55,31 @@ class BaseModel
     end
 
     def select_where(query)
-      selected_items = managed_data.map do |key, value|
-        selected = true
-        query.each { |k, v| selected = false if value[k] != v }
+      query_copy = query.dup
+      index_result = index_where(query_copy) || managed_data.keys
 
-        { **value, id: key } if selected
+      selected_items = index_result.map do |id|
+        selected = true
+        value = managed_data[id]
+        query_copy.each { |k, v| selected = false if value[k] != v }
+
+        { **value, id: id } if selected
       end
 
       selected_items.select(&:present?)
       Paginator.new(selected_items.map { |item| new(item) })
+    end
+
+    def index_where(query)
+      indexed_query = query.slice(*indexed_fields)
+      return nil if indexed_query.size.zero?
+
+      min_key, min_value = indexed_query.min_by do |k, v|
+        managed_index[k][v] = [] if managed_index[k][v].nil?
+        managed_index[k][v].length
+      end
+      query.delete(min_key)
+      managed_index[min_key][min_value]
     end
 
     def all
@@ -86,10 +106,6 @@ class BaseModel
   def attributes=(value)
   end
 
-  def indexed_fields
-    []
-  end
-
   def persisted?
     id.present?
   end
@@ -100,7 +116,7 @@ class BaseModel
     self.id = object_id
     self.class.managed_data[id] = attributes
 
-    indexed_fields.each do |field_name|
+    self.class.indexed_fields.each do |field_name|
       insert_into_index(field_name)
     end
 
@@ -112,7 +128,7 @@ class BaseModel
 
     self.attributes = attributes if attributes.present?
     self.class.managed_data[id] = self.attributes
-    indexed_fields.each { |field_name| update_at_index(field_name) }
+    self.class.indexed_fields.each { |field_name| update_at_index(field_name) }
 
     changes_applied
     true
@@ -121,7 +137,7 @@ class BaseModel
   def delete
     return false if id.nil?
 
-    indexed_fields.each { |field| delete_at_index(field) }
+    self.class.indexed_fields.each { |field| delete_at_index(field) }
     self.class.managed_data.delete(id)
     @id = nil
 
