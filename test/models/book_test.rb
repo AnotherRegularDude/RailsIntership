@@ -1,10 +1,6 @@
 require 'test_helper'
 
 class BookTest < ActiveSupport::TestCase
-  setup do
-    DbManager.instance[Book.table_name] = {}
-    IndexManager.instance[Book.table_name] = {}
-  end
 
   test 'create book' do
     book = new_book
@@ -186,29 +182,42 @@ class BookTest < ActiveSupport::TestCase
     assert_empty with_index_books
   end
 
+  test 'remove book from publishing house' do
+    create_books
+    publishing_house = PublishingHouse.all.first
+    old_length = publishing_house.books.length
+
+    publishing_house.books[0].delete
+
+    assert_equal old_length - 1, publishing_house.books.length
+  end
+
+  test 'update book, change publishing house' do
+    create_books
+    old_publishing = PublishingHouse.all.first
+    new_publishing = PublishingHouse.create(publishing_house_params)
+    old_length = old_publishing.books.length
+
+    changed_book = old_publishing.books[0]
+    changed_book.update(publishing_house_id: new_publishing.id)
+
+    assert_equal 1, new_publishing.books.length
+    assert_equal old_length - 1, old_publishing.books.length
+  end
+
+  test 'book have right publishing house id' do
+    create_books
+    publishing_house = PublishingHouse.all.first
+    book = Book.all.first
+
+    assert_equal book.publishing_house.id, publishing_house.id
+  end
+
   private
 
-  def book_params
-    {
-        title: Faker::Book.title,
-        description: Faker::Book.genre,
-        author: Faker::Book.author
-    }
-  end
-
   def new_book
-    Book.new(book_params)
-  end
+    publishing_house = PublishingHouse.create(publishing_house_params)
 
-  def create_books(number = 10)
-    params_array = []
-    number.times do
-      params = book_params
-
-      yield params if block_given?
-      params_array << params
-    end
-
-    Book.create(params_array)
+    Book.new(**book_params, publishing_house_id: publishing_house.id)
   end
 end

@@ -20,16 +20,49 @@ class BaseModel
       []
     end
 
+    def belongs_to(class_references)
+      class_references.each do |class_reference|
+        define_method(class_reference.name.underscore) do
+          foreign_key_name = "@#{class_reference.name.foreign_key}"
+          class_reference.find(instance_variable_get(foreign_key_name))
+        end
+      end
+    end
+
+    def has_many(class_references)
+      foreign_key_name = name.foreign_key.to_sym
+
+      class_references.each do |class_reference|
+        define_method(class_reference.name.tableize) do
+          ids = class_reference.managed_index[foreign_key_name][id]
+
+          class_reference.find(ids)
+        end
+      end
+
+      define_method(:delete_cascade) do
+        class_references.each do |class_reference|
+          ids = class_reference.managed_index[foreign_key_name][id]
+          instances = class_reference.find(ids)
+
+          instances.each(&:delete)
+          class_reference.managed_index[foreign_key_name].delete(id)
+        end
+      end
+
+      before_delete :delete_cascade
+    end
+
     def create(params)
       if params.instance_of? Array
-        params.each do |book_params|
-          new(book_params).save
+        params.each do |instance_params|
+          new(instance_params).save
         end
       else
-        book = new(params)
-        book.save
+        instance = new(params)
+        instance.save
 
-        book
+        instance
       end
     end
 
@@ -91,6 +124,7 @@ class BaseModel
   end
 
   define_attribute_methods :id
+  define_model_callbacks :delete
   attr_reader :id
 
   def id=(value)
@@ -137,9 +171,11 @@ class BaseModel
   def delete
     return false if id.nil?
 
-    self.class.indexed_fields.each { |field| delete_at_index(field) }
-    self.class.managed_data.delete(id)
-    @id = nil
+    run_callbacks :delete do
+      self.class.indexed_fields.each { |field| delete_at_index(field) }
+      self.class.managed_data.delete(id)
+      @id = nil
+    end
 
     true
   end
