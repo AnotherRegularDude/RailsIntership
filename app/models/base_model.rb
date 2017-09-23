@@ -34,14 +34,19 @@ class BaseModel
 
       class_references.each do |class_reference|
         define_method(class_reference.name.tableize) do
-          ids = class_reference.managed_index[foreign_key_name][id]
+          if class_reference.managed_index[foreign_key_name].nil?
+            return Paginator.new([])
+          end
 
+          ids = class_reference.managed_index[foreign_key_name][id]
           class_reference.find(ids)
         end
       end
 
       define_method(:delete_cascade) do
         class_references.each do |class_reference|
+          break if class_reference.managed_index[foreign_key_name].nil?
+
           ids = class_reference.managed_index[foreign_key_name][id]
           instances = class_reference.find(ids)
 
@@ -75,7 +80,8 @@ class BaseModel
         selected.select(&:present?)
         Paginator.new(selected.map { |item| new(item) })
       else
-        selected = managed_data[find_value]
+        find_value = find_value.to_i
+        selected = managed_data[Integer(find_value)]
         new(**selected, id: find_value) if selected.present?
       end
     end
@@ -158,9 +164,12 @@ class BaseModel
   end
 
   def update(attributes = [])
-    return false if id.nil? || !valid?
-
     self.attributes = attributes if attributes.present?
+    if id.nil? || !valid?
+      restore_attributes
+      return false
+    end
+
     self.class.managed_data[id] = self.attributes
     self.class.indexed_fields.each { |field_name| update_at_index(field_name) }
 

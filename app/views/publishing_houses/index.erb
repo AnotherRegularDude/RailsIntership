@@ -1,0 +1,25 @@
+<h1>Publishing House Index</h1>
+<% @publishing_houses.each do |publishing_house| %>
+    <div class="grouped-in-index">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h2><%= publishing_house.name %></h2>
+          </div>
+          <div class="col">
+            <%= link_to 'Show', { action: :show, id: publishing_house.id }, { class: 'nav-link' } %>
+            <%= link_to 'Edit', { action: :edit, id: publishing_house.id }, { class: 'nav-link' } %>
+            <%= link_to 'Destroy', { action: :destroy, id: publishing_house.id }, { class: 'nav-link', method: :delete } %>
+          </div>
+        </div>
+      </div>
+    </div>
+<% end %>
+<div class="row bottom-links">
+  <div class="col">
+    <%= paginate(action: :index) %>
+  </div>
+  <div class="col">
+    <%= link_to 'New', { action: :new }, { class: 'nav-link' } %>
+  </div>
+</div>

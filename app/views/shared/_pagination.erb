@@ -1,0 +1,8 @@
+<nav>
+  <ul class="pagination">
+    <% if curr_page > 1 %>
+        <li class="page-item"><%= link_to 'Previous', { page: curr_page - 1, **url_attrs }, { class: 'page-link' } %></li>
+    <% end %>
+    <li class="page-item"><%= link_to 'Next', { page: curr_page + 1, **url_attrs }, { class: 'page-link' } %></li>
+  </ul>
+</nav>

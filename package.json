@@ -1,5 +1,7 @@
 {
   "name": "rails_intership",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "bootstrap": "^4.0.0-beta"
+  }
 }

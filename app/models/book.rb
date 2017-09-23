@@ -1,13 +1,12 @@
 class Book < BaseModel
   class << self
     def indexed_fields
-      [:title, :author, :publishing_house_id]
+      %i[title author publishing_house_id]
     end
   end
 
   define_attribute_methods :title, :description, :author, :publishing_house_id
   attr_reader :title, :description, :author, :publishing_house_id
-
 
   belongs_to [PublishingHouse]
 

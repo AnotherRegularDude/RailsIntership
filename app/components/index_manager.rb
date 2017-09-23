@@ -9,8 +9,13 @@ class IndexManager
     @indexes[table_name] = index
   end
 
+  # Here's if we use Hash.new({}) instead {},
+  # we will see the following behavior:
+  # Default return value is new Hash, but for books and for publishing_houses
+  # there is same Hash:
+  # IndexManager.instance['books'] == IndexManager.instance['publishing_houses']!
   def initialize
-    @indexes = Hash.new({})
+    @indexes = {}
   end
 
 end

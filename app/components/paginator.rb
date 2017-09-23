@@ -17,6 +17,7 @@ class Paginator < Delegator
 
   def page(page_num = nil)
     page_num ||= 1
+    page_num = Integer(page_num)
     from_value = (page_num - 1) * per_page
     to_value = page_num * per_page - 1
 

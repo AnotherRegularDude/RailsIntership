@@ -1,0 +1,10 @@
+<div class="card">
+  <div class="card-body">
+    <h4 class="card-title">Publishing House Show</h4>
+    <h6 class="card-subtitle mb-2 text-muted">Publishing House's Name</h6>
+    <div class="card-text"><%= @publishing_house.name %></div>
+    <%= link_to 'Books', [@publishing_house, :books], { class: 'card-link' } %>
+    <%= link_to 'Back', :back, { class: 'card-link' } %>
+    <%= link_to 'Edit', { action: :edit, id: @publishing_house.id }, { class: 'card-link' } %>
+  </div>
+</div>

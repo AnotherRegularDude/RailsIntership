@@ -1,8 +1,9 @@
 class BooksController < ApplicationController
-  before_action :find_or_404, only: [:show]
+  before_action :find_publishing_house_or_404
+  before_action :find_book_id_or_404, except: %i[index new create]
 
   def index
-    @books = Book.all
+    @books = @publishing_house.books.page(params[:page]) || []
   end
 
   def show
@@ -17,13 +18,35 @@ class BooksController < ApplicationController
 
   def create
     @book = Book.new(book_params)
+    @book.publishing_house_id = @publishing_house.id
+
     @book.save
-    redirect_to new_book_url
+    redirect_to new_publishing_house_book_url @publishing_house
+  end
+
+  def update
+    @book.update(book_params)
+
+    redirect_to edit_publishing_house_book_url([@publishing_house, @book])
+  end
+
+  def destroy
+    @book.delete
+
+    redirect_params = {
+      publishing_house_id: @publishing_house.id
+    }
+    redirect_to publishing_house_books_url redirect_params
   end
 
   private
 
-  def find_or_404
+  def find_publishing_house_or_404
+    ph_id = params[:publishing_house_id]
+    @publishing_house = PublishingHouse.find_by_id!(ph_id)
+  end
+
+  def find_book_id_or_404
     @book = Book.find_by_id!(params[:id])
   end
 

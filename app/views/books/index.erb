@@ -1,10 +1,27 @@
 <h1>Books Index</h1>
-<% @books.each do |book| %>
-    <div>
-      <h2><%= book.title %></h2>
-      <%= link_to 'Show', { action: :show, id: book.id } %>
-      <%= link_to 'Edit', { action: :edit, id: book.id } %>
-    </div>
+<% if @books.present? %>
+    <% @books.each do |book| %>
+        <div class="grouped-in-index">
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <h2><%= book.title %></h2>
+              </div>
+              <div class="col">
+                <%= link_to 'Show', { action: :show, id: book.id, publishing_house_id: @publishing_house.id }, { class: 'nav-link' } %>
+                <%= link_to 'Edit', { action: :edit, id: book.id, publishing_house_id: @publishing_house.id }, { class: 'nav-link' } %>
+                <%= link_to 'Destroy', { action: :destroy, id: book.id, publishing_house_id: @publishing_house.id }, { class: 'nav-link', method: :delete } %>
+              </div>
+            </div>
+          </div>
+        </div>
+    <% end %>
 <% end %>
-
-<%= link_to 'New', { action: :new }  %>
+<div class="row bottom-links">
+  <div class="col">
+    <%= paginate(action: :index, publishing_house_id: @publishing_house.id) %>
+  </div>
+  <div class="col">
+    <%= link_to 'New', { action: :new, publishing_house_id: @publishing_house.id }, { class: 'nav-link' } %>
+  </div>
+</div>

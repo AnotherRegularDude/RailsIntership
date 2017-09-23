@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  root 'books#index'
+  root 'publishing_houses#index'
 
-  resources :books
+  resources :publishing_houses do
+    resources :books
+  end
 end

@@ -1,13 +1,15 @@
-<h1>Book Show</h1>
-<p>
-  <b>Title:</b><br>
-  <%= @book.title %>
-</p>
-<p>
-  <b>Description:</b><br>
-  <%= @book.description %>
-</p>
-<p>
-  <b>Author:</b><br>
-  <%= @book.author %>
-</p>
+<div class="card">
+  <div class="card-body">
+    <h4 class="card-title">Book Show</h4>
+    <div class="card-text">
+      <h6>Title: </h6>
+      <p><%= @book.title %></p>
+      <h6>Description: </h6>
+      <p><%= @book.description %></p>
+      <h6>Author: </h6>
+      <p><%= @book.author %></p>
+    </div>
+    <%= link_to 'Back', :back, { class: 'card-link' } %>
+    <%= link_to 'Edit', { action: :edit, id: @book.id }, { class: 'card-link' } %>
+  </div>
+</div>

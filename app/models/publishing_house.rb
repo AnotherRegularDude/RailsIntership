@@ -11,7 +11,7 @@ class PublishingHouse < BaseModel
   has_many [Book]
 
   def name=(value)
-    name_wiil_change! unless @name == value || @name.nil?
+    name_will_change! unless @name == value || @name.nil?
 
     @name = value
   end
