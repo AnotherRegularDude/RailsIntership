@@ -6,6 +6,7 @@ IndexManager.instance[Book.table_name] = {}
 DbManager.instance[PublishingHouse.table_name] = {}
 IndexManager.instance[PublishingHouse.table_name] = {}
 
+# If environment is development, seed database.
 if Rails.env.development?
   100.times do
     params_array = []
@@ -14,7 +15,7 @@ if Rails.env.development?
     100.times do
       params = {
         title: Faker::Book.title,
-        description: Faker::Book.genre,
+        description: Faker::Lorem.sentence,
         author: Faker::Book.author,
         publishing_house_id: ph.id
       }

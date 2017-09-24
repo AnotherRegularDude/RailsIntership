@@ -2,7 +2,10 @@ class PublishingHousesController < ApplicationController
   before_action :find_or_404, except: %i[index new create]
 
   def index
-    @publishing_houses = PublishingHouse.all.page(params[:page]) || []
+    paginated = PublishingHouse.all
+
+    @publishing_houses = paginated.page(params[:page]) || []
+    @total_pages = paginated.total_pages
   end
 
   def show

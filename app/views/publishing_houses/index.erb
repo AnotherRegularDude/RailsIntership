@@ -17,7 +17,7 @@
 <% end %>
 <div class="row bottom-links">
   <div class="col">
-    <%= paginate(action: :index) %>
+    <%= paginate(@total_pages, action: :index) %>
   </div>
   <div class="col">
     <%= link_to 'New', { action: :new }, { class: 'nav-link' } %>

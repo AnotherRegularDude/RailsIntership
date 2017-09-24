@@ -8,7 +8,7 @@ class PublishingHouse < BaseModel
   define_attribute_methods :name
   attr_reader :name
 
-  has_many [Book]
+  has_many :books
 
   def name=(value)
     name_will_change! unless @name == value || @name.nil?
@@ -24,6 +24,6 @@ class PublishingHouse < BaseModel
     self.id = value[:id] || id
     self.name = value[:name] || name
   end
-  
+
   validates :name, presence: true
 end

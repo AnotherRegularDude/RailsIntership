@@ -1,5 +1,6 @@
 # For working with ActiveModel pagination via BaseModel.
-class Paginator < Delegator
+class PaginationDecorator < Delegator
+  attr_reader :total_pages
   attr_accessor :per_page
 
   def __getobj__
@@ -10,9 +11,13 @@ class Paginator < Delegator
     @delegate_dc_obj = obj
   end
 
+  def total_pages
+    @delegate_dc_obj.length / per_page
+  end
+
   def initialize(arr_to_paginate, per_page = 20)
     @delegate_dc_obj = arr_to_paginate
-    self.per_page = per_page
+    @per_page = per_page
   end
 
   def page(page_num = nil)
@@ -23,5 +28,4 @@ class Paginator < Delegator
 
     @delegate_dc_obj[from_value..to_value]
   end
-
 end

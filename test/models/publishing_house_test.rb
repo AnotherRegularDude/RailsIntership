@@ -32,10 +32,10 @@ class PublishingHouseTest < ActiveSupport::TestCase
     assert_not publishing_house.update
   end
 
-  test "publishing house's #books return Paginator" do
+  test "publishing house's #books return PaginatingDecorator" do
     publishing_house = publishing_house_with_books
 
-    assert_instance_of Paginator, publishing_house.books
+    assert_instance_of PaginationDecorator, publishing_house.books
   end
 
   private

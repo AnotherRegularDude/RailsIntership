@@ -3,7 +3,10 @@ class BooksController < ApplicationController
   before_action :find_book_id_or_404, except: %i[index new create]
 
   def index
-    @books = @publishing_house.books.page(params[:page]) || []
+    paginated = @publishing_house.books
+
+    @books = paginated.page(params[:page]) || []
+    @total_pages = paginated.total_pages
   end
 
   def show

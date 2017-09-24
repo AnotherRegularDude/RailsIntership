@@ -1,8 +1,18 @@
 <nav>
   <ul class="pagination">
     <% if curr_page > 1 %>
+        <% if curr_page > 2 %>
+            <li class="page-item"><%= link_to 'First', { page: 1, **url_attrs }, { class: 'page-link' } %></li>
+            <a class="page-link" href="#">...</a>
+        <% end %>
         <li class="page-item"><%= link_to 'Previous', { page: curr_page - 1, **url_attrs }, { class: 'page-link' } %></li>
     <% end %>
-    <li class="page-item"><%= link_to 'Next', { page: curr_page + 1, **url_attrs }, { class: 'page-link' } %></li>
+    <% if curr_page < total_pages %>
+        <li class="page-item"><%= link_to 'Next', { page: curr_page + 1, **url_attrs }, { class: 'page-link' } %></li>
+        <% if curr_page < total_pages - 1 %>
+            <a class="page-link" href="#">...</a>
+            <li class="page-item"><%= link_to 'Last', { page: total_pages, **url_attrs }, { class: 'page-link' } %></li>
+        <% end %>
+    <% end %>
   </ul>
 </nav>

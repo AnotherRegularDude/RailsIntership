@@ -8,7 +8,7 @@ class Book < BaseModel
   define_attribute_methods :title, :description, :author, :publishing_house_id
   attr_reader :title, :description, :author, :publishing_house_id
 
-  belongs_to [PublishingHouse]
+  belongs_to :publishing_house
 
   def title=(value)
     title_will_change! unless @title == value || @title.nil?
@@ -50,7 +50,8 @@ class Book < BaseModel
     self.title = value[:title] || title
     self.description = value[:description] || description
     self.author = value[:author] || author
-    self.publishing_house_id = value[:publishing_house_id] || publishing_house_id
+    self.publishing_house_id = (
+    value[:publishing_house_id] || publishing_house_id)
   end
 
   validates :title, :description, :author, :publishing_house_id, presence: true

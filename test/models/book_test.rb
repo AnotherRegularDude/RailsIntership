@@ -213,6 +213,13 @@ class BookTest < ActiveSupport::TestCase
     assert_equal book.publishing_house.id, publishing_house.id
   end
 
+  test 'right pages count' do
+    create_books 115
+    total_pages = Book.all.total_pages
+
+    assert_equal 5, total_pages
+  end
+
   private
 
   def new_book

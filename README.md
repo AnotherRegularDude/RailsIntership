@@ -14,4 +14,4 @@
 * Make **Search with indexes** for models **✓**
 * Make **CRUD** on *Active Model* with *this* database **✓**
 * Make **Relationships logic** in database *(has_many && belongs_to)* **✓**
-* Finally, **Let's Refactor** this shit!
+* Finally, **Let's Refactor** this shit! **✓**
