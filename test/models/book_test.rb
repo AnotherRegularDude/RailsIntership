@@ -1,12 +1,11 @@
 require 'test_helper'
 
 class BookTest < ActiveSupport::TestCase
-
   test 'create book' do
     book = new_book
     book.save
 
-    assert_equal book.object_id, book.id
+    assert_equal book.id, Book.managed_data.keys.first
     assert_equal 1, Book.all.size
   end
 
@@ -43,15 +42,16 @@ class BookTest < ActiveSupport::TestCase
     book.save
 
     title = 'New book'
+    id_before_update = book.id
     book.update(title: title)
 
     assert_not_nil book.description
     assert_not_nil book.author
 
-    assert_equal book.object_id, book.id
+    assert_equal id_before_update, book.id
     assert_equal title, book.title
 
-    assert_equal title, Book.managed_data[book.object_id][:title]
+    assert_equal title, Book.managed_data[book.id][:title]
   end
 
   test 'update book through attrs' do
@@ -61,15 +61,16 @@ class BookTest < ActiveSupport::TestCase
     title = 'New title'
 
     book.title = title
+    id_before_update = book.id
     book.update
 
     assert_not_nil book.description
     assert_not_nil book.author
 
-    assert_equal book.object_id, book.id
+    assert_equal id_before_update, book.id
     assert_equal title, book.title
 
-    assert_equal title, Book.managed_data[book.object_id][:title]
+    assert_equal title, Book.managed_data[book.id][:title]
   end
 
   test 'delete book' do
@@ -219,6 +220,12 @@ class BookTest < ActiveSupport::TestCase
 
     assert_equal 5, total_pages
   end
+
+  # test 'create large number of books, ensure all added' do
+  #   create_books 10_000
+
+  #   assert_equal 10_000, Book.managed_data.size
+  # end
 
   private
 

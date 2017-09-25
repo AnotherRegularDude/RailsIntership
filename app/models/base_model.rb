@@ -39,7 +39,7 @@ class BaseModel
   def save
     return false unless valid?
 
-    self.id = object_id
+    self.id = SecureRandom.uuid
     self.class.managed_data[id] = attributes
 
     self.class.indexed_fields.each do |field_name|

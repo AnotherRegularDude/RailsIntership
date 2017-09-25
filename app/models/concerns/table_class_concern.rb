@@ -19,7 +19,7 @@ module TableClassConcern
       if find_value.is_a? Array
         select_from_ids_arr(find_value)
       else
-        select_one_element(find_value.to_i)
+        select_one_element(find_value)
       end
     end
 

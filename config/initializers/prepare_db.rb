@@ -1,10 +1,10 @@
 # If environment is development, seed database.
 if Rails.env.development?
-  100.times do
+  30.times do
     params_array = []
     ph = PublishingHouse.create(name: Faker::Book.publisher)
 
-    100.times do
+    30.times do
       params = {
         title: Faker::Book.title,
         description: Faker::Lorem.sentence,
