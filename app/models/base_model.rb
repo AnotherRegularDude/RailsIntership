@@ -19,20 +19,9 @@ class BaseModel
     def managed_index
       IndexManager.instance[table_name]
     end
-
-    def indexed_fields
-      []
-    end
   end
 
   attr_reader :id
-
-  def attributes
-    {}
-  end
-
-  def attributes=(value)
-  end
 
   def persisted?
     id.present?

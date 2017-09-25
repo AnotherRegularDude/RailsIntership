@@ -7,7 +7,7 @@ module Relational
     end
   end
 
-  class_methods do
+  module ClassMethods
     def belongs_to(*classes)
       classes.each do |class_sym|
         define_belong_relation(class_sym.to_s.classify.constantize)

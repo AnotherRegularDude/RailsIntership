@@ -9,11 +9,9 @@ class BooksController < ApplicationController
     @total_pages = paginated.total_pages
   end
 
-  def show
-  end
+  def show; end
 
-  def edit
-  end
+  def edit; end
 
   def new
     @book = Book.new

@@ -1,7 +1,7 @@
 module TableClassConcern
   extend ActiveSupport::Concern
 
-  class_methods do
+  module ClassMethods
     def create(params)
       if params.instance_of? Array
         params.each do |instance_params|

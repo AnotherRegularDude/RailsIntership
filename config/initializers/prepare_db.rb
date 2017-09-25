@@ -1,11 +1,3 @@
-# Create hashes for all tables
-
-DbManager.instance[Book.table_name] = {}
-IndexManager.instance[Book.table_name] = {}
-
-DbManager.instance[PublishingHouse.table_name] = {}
-IndexManager.instance[PublishingHouse.table_name] = {}
-
 # If environment is development, seed database.
 if Rails.env.development?
   100.times do

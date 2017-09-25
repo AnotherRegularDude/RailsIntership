@@ -8,11 +8,9 @@ class PublishingHousesController < ApplicationController
     @total_pages = paginated.total_pages
   end
 
-  def show
-  end
+  def show; end
 
-  def edit
-  end
+  def edit; end
 
   def new
     @publishing_house = PublishingHouse.new

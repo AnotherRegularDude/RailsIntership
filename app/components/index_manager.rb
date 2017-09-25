@@ -1,3 +1,4 @@
+# Manage Indexed fields in database.
 class IndexManager
   include Singleton
 
@@ -13,9 +14,8 @@ class IndexManager
   # we will see the following behavior:
   # Default return value is new Hash, but for books and for publishing_houses
   # there is same Hash:
-  # IndexManager.instance['books'] == IndexManager.instance['publishing_houses']!
+  # IndexManager.instance['books'] == IndexManager.instance['publishing_houses']
   def initialize
-    @indexes = {}
+    @indexes = Hash.new { |hash, table_name| hash[table_name] = {} }
   end
-
 end
