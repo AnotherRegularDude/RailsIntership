@@ -3,7 +3,7 @@ module TableClassConcern
 
   module ClassMethods
     def create(params)
-      if params.instance_of? Array
+      if params.is_a? Array
         params.each do |instance_params|
           new(instance_params).save
         end
@@ -16,7 +16,7 @@ module TableClassConcern
     end
 
     def find(find_value)
-      if find_value.instance_of? Array
+      if find_value.is_a? Array
         select_from_ids_arr(find_value)
       else
         select_one_element(find_value.to_i)

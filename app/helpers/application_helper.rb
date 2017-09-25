@@ -1,6 +1,6 @@
 module ApplicationHelper
   def paginate(total_pages, url_attrs)
-    curr_page = params[:page] || 1
+    curr_page = params.fetch(:page, 1)
     locals = {
       curr_page: curr_page.to_i,
       total_pages: total_pages,

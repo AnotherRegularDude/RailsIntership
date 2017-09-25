@@ -15,8 +15,8 @@ module Relational
     end
 
     def has_many(*classes)
-      references = classes.map do |item|
-        item.to_s.singularize.classify.constantize
+      references = classes.map do |class_sym|
+        class_sym.to_s.singularize.classify.constantize
       end
 
       references.each do |class_reference|
