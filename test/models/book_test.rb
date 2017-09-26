@@ -218,7 +218,7 @@ class BookTest < ActiveSupport::TestCase
     create_books 115
     total_pages = Book.all.total_pages
 
-    assert_equal 5, total_pages
+    assert_equal 6, total_pages
   end
 
   # test 'create large number of books, ensure all added' do

@@ -7,7 +7,7 @@
 * [] -> {} **✓**
 * Add basic validations to model **✓**
 * Read **Explain Analyzes** **✓**
-* Read **Limit and Offsets** **✓** 
+* Read **Limit and Offsets** **✓**
 * Read **Complexity of algorithms** **✓**
 * Make **Pagination** for models **✓**
 * Make **Indexes** for models **✓**
