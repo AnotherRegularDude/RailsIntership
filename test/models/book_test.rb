@@ -221,11 +221,11 @@ class BookTest < ActiveSupport::TestCase
     assert_equal 6, total_pages
   end
 
-  # test 'create large number of books, ensure all added' do
-  #   create_books 10_000
+  test 'create large number of books, ensure all added' do
+    create_books 10_000
 
-  #   assert_equal 10_000, Book.managed_data.size
-  # end
+    assert_equal 10_000, Book.managed_data.size
+  end
 
   private
 

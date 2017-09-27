@@ -87,7 +87,7 @@ module TableClassConcern
 
     def min_index(query_on_index)
       query_on_index.min_by do |k, v|
-        managed_index[k][v] = [] if managed_index[k][v].nil?
+        managed_index[k][v] ||= []
         managed_index[k][v].length
       end
     end
