@@ -220,6 +220,31 @@ class BookTest < ActiveSupport::TestCase
     assert_equal 10_000 * Book.data_size, Book.managed_data.size
   end
 
+  test 'delete book, check id index also deleted' do
+    create_books
+
+    book = Book.all[0]
+    book.delete
+
+    assert_equal 9, Book.managed_index[:id].keys.size
+  end
+
+  test 'vacuum books, after removals' do
+    create_books 100
+
+    deleted_book = Book.all.first
+    checked_book = Book.all.second
+    checked_size = Book.managed_data.size
+    deleted_book.delete
+
+    Book.vacuum
+    book = Book.all.first
+
+    assert_equal checked_book.id, book.id
+    assert_equal checked_book.title, book.title
+    assert_equal checked_size - Book.data_size, Book.managed_data.size
+  end
+
   private
 
   def new_book

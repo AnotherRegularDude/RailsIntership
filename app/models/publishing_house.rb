@@ -38,7 +38,7 @@ class PublishingHouse < BaseModel
     self.name = value[:name] || name
   end
 
-  validates :name, presence: true, length: { in: 2..40 }
+  validates :name, presence: true, length: { maximum: 40 }
 
   def to_mem
     [id, name].pack(PACK_STRING)

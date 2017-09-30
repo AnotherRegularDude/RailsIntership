@@ -19,7 +19,16 @@ module TableClassConcern
 
       shift = managed_index[:id][id]
       data_begin = shift * data_size
-      data_end = shift * data_size + data_size
+      data_end = data_begin + data_size
+
+      [data_begin, data_end]
+    end
+
+    def data_position_by_shift(shift)
+      return if shift * data_size >= managed_data.size
+
+      data_begin = shift * data_size
+      data_end = data_begin + data_size
 
       [data_begin, data_end]
     end
@@ -70,6 +79,7 @@ module TableClassConcern
     end
 
     def all
+      managed_index[:id] ||= {}
       data_to_paginate = managed_index[:id].keys.map do |id|
         from, to = data_position(id)
         from_mem(managed_data[from...to])
@@ -77,6 +87,24 @@ module TableClassConcern
       data_to_paginate.select!(&:present?)
 
       PaginationDecorator.new(data_to_paginate)
+    end
+
+    def vacuum
+      times_to_shift = 0
+      shift = 0
+
+      while data_position_by_shift(shift).present?
+        from, to = data_position_by_shift(shift)
+        obj = from_mem(managed_data[from...to])
+
+        if obj.nil?
+          managed_data[from...to] = ''
+          times_to_shift += 1
+        else
+          managed_index[:id][obj.id] -= times_to_shift
+          shift += 1
+        end
+      end
     end
 
     private

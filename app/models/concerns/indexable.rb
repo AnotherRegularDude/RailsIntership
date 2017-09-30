@@ -5,7 +5,7 @@ module Indexable
     private
 
     def insert_id_into_index
-      shift = (self.class.managed_data.size / self.class.data_size) - 1
+      shift = self.class.managed_data.size / self.class.data_size - 1
 
       self.class.managed_index[:id] ||= {}
       self.class.managed_index[:id][id] = shift

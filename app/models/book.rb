@@ -78,7 +78,7 @@ class Book < BaseModel
 
   validates :title, :description, :author, :publishing_house_id, presence: true
   validates :publishing_house_id, length: { is: 36 }
-  validates :title, :description, :author, length: { in: 2..50 }
+  validates :title, :description, :author, length: { maximum: 50 }
 
   def to_mem
     [id, title, description, author, publishing_house_id]
