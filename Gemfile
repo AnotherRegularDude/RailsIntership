@@ -33,7 +33,7 @@ gem 'jbuilder', '~> 2.5'
 # For simple job queuing
 gem 'sucker_punch', '~> 2.0'
 
-group :development, :test, :benchmark do
+group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
@@ -42,9 +42,6 @@ group :development, :test, :benchmark do
 
   # Use faker to generate data
   gem 'faker', :git => 'git://github.com/stympy/faker.git', :branch => 'master'
-
-  gem 'rails-perftest'
-  gem 'ruby-prof'
 end
 
 group :development do
