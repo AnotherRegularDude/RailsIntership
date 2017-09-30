@@ -4,8 +4,8 @@ class DumpDbJob < ApplicationJob
   queue_as :default
 
   def perform
-    PublishingHouse.vacuum
-    Book.vacuum
+    PublishingHouse.vacuum_optimize
+    Book.vacuum_optimize
     DbManager.instance.dump_to_file
 
     self.class.set(wait: RUN_EVERY).perform_later

@@ -3,6 +3,7 @@
 class DbManager
   include Singleton
 
+  # TODO: Think about load_dump realization.
   DUMP_PATH = Rails.root.join('tmp', 'dumped.db').freeze
   DUMPED_TABLES = [PublishingHouse.table_name, Book.table_name].freeze
 
@@ -33,6 +34,7 @@ class DbManager
 
       DUMPED_TABLES.each_with_index do |key, index|
         @data_mappers[key] = file.read(tables_length[index])
+        key.classify.constantize.fully_refresh_index
       end
     end
   end

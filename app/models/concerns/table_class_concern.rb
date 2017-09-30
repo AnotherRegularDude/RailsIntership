@@ -68,6 +68,7 @@ module TableClassConcern
       filter_by_query(index_result, query_copy)
     end
 
+    # FIXME: Rewrite filter by index.
     def index_where(query)
       indexed_query = query.slice(*indexed_fields)
       return nil if indexed_query.size.zero?
@@ -89,7 +90,8 @@ module TableClassConcern
       PaginationDecorator.new(data_to_paginate)
     end
 
-    def vacuum
+    # FIXME: Refactor rubocop warnings.
+    def vacuum_optimize
       times_to_shift = 0
       shift = 0
 
@@ -104,6 +106,16 @@ module TableClassConcern
           managed_index[:id][obj.id] -= times_to_shift
           shift += 1
         end
+      end
+    end
+
+    def fully_refresh_index
+      IndexManager.instance[table_name] = {}
+      max_shift = managed_data.size / data_size
+
+      max_shift.times do |shift|
+        from, to = data_position_by_shift(shift)
+        from_mem(managed_data[from...to]).index_data(shift)
       end
     end
 

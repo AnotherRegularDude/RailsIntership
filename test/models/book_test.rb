@@ -237,7 +237,7 @@ class BookTest < ActiveSupport::TestCase
     checked_size = Book.managed_data.size
     deleted_book.delete
 
-    Book.vacuum
+    Book.vacuum_optimize
     book = Book.all.first
 
     assert_equal checked_book.id, book.id

@@ -33,10 +33,7 @@ class BaseModel
     return false unless can_create?
 
     self.class.managed_data << to_mem
-    insert_id_into_index
-    self.class.indexed_fields.each do |field_name|
-      insert_into_index(field_name)
-    end
+    index_data
 
     changes_applied
     true
@@ -66,6 +63,13 @@ class BaseModel
     end
 
     true
+  end
+
+  def index_data(shift = nil)
+    insert_id_into_index(shift)
+    self.class.indexed_fields.each do |field_name|
+      insert_into_index(field_name)
+    end
   end
 
   delegate :[], to: :attributes
