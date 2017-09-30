@@ -18,3 +18,6 @@ if Rails.env.development?
     Book.create(params_array)
   end
 end
+
+# Run job, which dump database every 5 mintes.
+DumpDbJob.perform_later
