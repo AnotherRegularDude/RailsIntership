@@ -16,6 +16,6 @@ class DbManager
   # there is same Hash:
   # DbManager.instance['books'] == DbManager.instance['publishing_houses']!
   def initialize
-    @data_mappers = Hash.new { |hash, table_name| hash[table_name] = {} }
+    @data_mappers = Hash.new { |hash, table_name| hash[table_name] = '' }
   end
 end

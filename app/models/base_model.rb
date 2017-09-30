@@ -7,21 +7,11 @@ class BaseModel
   include ActiveModel::Dirty
   include ActiveModel::Model
 
-  class << self
-    def table_name
-      name.tableize
-    end
-
-    def managed_data
-      DbManager.instance[table_name]
-    end
-
-    def managed_index
-      IndexManager.instance[table_name]
-    end
-  end
-
   attr_reader :id
+
+  def data_position
+    self.class.data_position(id)
+  end
 
   def persisted?
     id.present?
@@ -36,24 +26,28 @@ class BaseModel
   define_attribute_methods :id
   define_model_callbacks :delete
 
+  validates :id, presence: true, length: { is: 36 }
+
   def save
-    return false unless valid?
-
     self.id = SecureRandom.uuid
-    self.class.managed_data[id] = attributes
+    return false unless can_create?
 
+    self.class.managed_data << to_mem
+    insert_id_into_index
     self.class.indexed_fields.each do |field_name|
       insert_into_index(field_name)
     end
 
     changes_applied
+    true
   end
 
   def update(attributes = [])
     self.attributes = attributes if attributes.present?
     return false unless can_update?
+    from, to = data_position
 
-    self.class.managed_data[id] = self.attributes
+    self.class.managed_data[from...to] = to_mem
     self.class.indexed_fields.each { |field_name| update_at_index(field_name) }
 
     changes_applied
@@ -62,20 +56,31 @@ class BaseModel
 
   def delete
     return false if id.nil?
+    from, to = data_position
 
     run_callbacks :delete do
+      delete_id_at_index
       self.class.indexed_fields.each { |field| delete_at_index(field) }
-      self.class.managed_data.delete(id)
+      self.class.managed_data[from...to] = ' ' * self.class.data_size
       @id = nil
     end
 
     true
   end
 
+  delegate :[], to: :attributes
+
   private
 
+  def can_create?
+    return true if valid?
+
+    @id = nil
+    false
+  end
+
   def can_update?
-    return true if id.present? && valid?
+    return true if valid?
 
     restore_attributes
     false

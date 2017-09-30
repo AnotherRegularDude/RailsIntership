@@ -2,6 +2,28 @@ module TableClassConcern
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def table_name
+      name.tableize
+    end
+
+    def managed_data
+      DbManager.instance[table_name]
+    end
+
+    def managed_index
+      IndexManager.instance[table_name]
+    end
+
+    def data_position(id)
+      return if managed_index[:id][id].nil?
+
+      shift = managed_index[:id][id]
+      data_begin = shift * data_size
+      data_end = shift * data_size + data_size
+
+      [data_begin, data_end]
+    end
+
     def create(params)
       if params.is_a? Array
         params.each do |instance_params|
@@ -48,41 +70,50 @@ module TableClassConcern
     end
 
     def all
-      data_to_paginate = managed_data.map do |key, value|
-        { **value, id: key }
+      data_to_paginate = managed_index[:id].keys.map do |id|
+        from, to = data_position(id)
+        from_mem(managed_data[from...to])
       end
-      decorate_with_pagination(data_to_paginate)
+      data_to_paginate.select!(&:present?)
+
+      PaginationDecorator.new(data_to_paginate)
     end
 
     private
 
-    def decorate_with_pagination(list_to_decorate)
-      PaginationDecorator.new(list_to_decorate.map { |item| new(item) })
-    end
-
     def select_from_ids_arr(ids_arr)
       selected = ids_arr.map do |id|
-        { **managed_data[id], id: id } if managed_data[id].present?
-      end
+        next if data_position(id).nil?
+        from, to = data_position(id)
 
-      decorate_with_pagination(selected)
+        from_mem(managed_data[from...to])
+      end
+      selected.select!(&:present?)
+
+      PaginationDecorator.new(selected)
     end
 
     def select_one_element(id)
-      selected = managed_data[id]
-      new(**selected, id: id) if selected.present?
+      return if data_position(id).nil?
+
+      from, to = data_position(id)
+      from_mem(managed_data[from...to])
     end
 
     def filter_by_query(ids_to_filter, filter_query)
       selected = ids_to_filter.map do |id|
         select_flag = true
-        value = managed_data[id]
+        next if data_position(id).nil?
+
+        from, to = data_position(id)
+        value = from_mem(managed_data[from...to])
+
         filter_query.each { |k, v| select_flag = false if value[k] != v }
 
-        { **value, id: id } if select_flag
+        value if select_flag
       end
 
-      decorate_with_pagination(selected)
+      PaginationDecorator.new(selected)
     end
 
     def min_index(query_on_index)

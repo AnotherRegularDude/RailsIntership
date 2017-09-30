@@ -21,7 +21,7 @@ class PublishingHouseTest < ActiveSupport::TestCase
     publishing_house.delete
 
     assert_nil publishing_house.id
-    assert_nil PublishingHouse.managed_data[id]
+    assert_nil PublishingHouse.managed_index[:id][id]
   end
 
   test 'publishing house update with not valid attributes' do

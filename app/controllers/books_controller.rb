@@ -28,7 +28,7 @@ class BooksController < ApplicationController
   def update
     @book.update(book_params)
 
-    redirect_to edit_publishing_house_book_url([@publishing_house, @book])
+    redirect_to edit_publishing_house_book_url(@publishing_house, @book)
   end
 
   def destroy

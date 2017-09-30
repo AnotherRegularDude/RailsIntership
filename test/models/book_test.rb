@@ -5,7 +5,7 @@ class BookTest < ActiveSupport::TestCase
     book = new_book
     book.save
 
-    assert_equal book.id, Book.managed_data.keys.first
+    assert_equal book.id, Book.managed_index[:id].keys.first
     assert_equal 1, Book.all.size
   end
 
@@ -17,21 +17,19 @@ class BookTest < ActiveSupport::TestCase
 
   test 'find book_by id' do
     create_books
-    existed_id = Book.managed_data.keys[0]
+    existed_id = Book.managed_index[:id].keys[0]
     not_existed_id = 'not_existed'
 
     existed_book = Book.find existed_id
     not_existed_book = Book.find not_existed_id
 
     assert_not_nil existed_book
-    assert_not_nil Book.managed_data[existed_book.id]
-
     assert_nil not_existed_book
   end
 
   test 'find books_by ids' do
     create_books
-    ids = Book.managed_data.keys[1..3]
+    ids = Book.managed_index[:id].keys[1..3]
 
     books = Book.find(ids)
     assert_equal ids.length, books.length
@@ -50,8 +48,6 @@ class BookTest < ActiveSupport::TestCase
 
     assert_equal id_before_update, book.id
     assert_equal title, book.title
-
-    assert_equal title, Book.managed_data[book.id][:title]
   end
 
   test 'update book through attrs' do
@@ -69,25 +65,22 @@ class BookTest < ActiveSupport::TestCase
 
     assert_equal id_before_update, book.id
     assert_equal title, book.title
-
-    assert_equal title, Book.managed_data[book.id][:title]
   end
 
   test 'delete book' do
     create_books
-    id = Book.managed_data.keys[0]
+    id = Book.managed_index[:id].keys[0]
 
     book = Book.find(id)
     book.delete
 
     assert_nil book.id
     assert_equal false, book.delete
-    assert_nil Book.managed_data[id]
   end
 
   test 'select one book with title' do
     create_books
-    id = Book.managed_data.keys[0]
+    id = Book.managed_index[:id].keys[0]
 
     book = Book.find(id)
     where_book, = Book.select_where(title: book.title)
@@ -97,7 +90,7 @@ class BookTest < ActiveSupport::TestCase
 
   test 'select one book with author, description' do
     create_books
-    id = Book.managed_data.keys[0]
+    id = Book.managed_index[:id].keys[0]
 
     book = Book.find(id)
     select_params = { description: book.description, author: book.author }
@@ -224,7 +217,7 @@ class BookTest < ActiveSupport::TestCase
   test 'create large number of books, ensure all added' do
     create_books 10_000
 
-    assert_equal 10_000, Book.managed_data.size
+    assert_equal 10_000 * Book.data_size, Book.managed_data.size
   end
 
   private

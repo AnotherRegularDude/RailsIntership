@@ -1,7 +1,28 @@
 class Book < BaseModel
+  PACK_STRING = 'A36A50A50A50A36'.freeze
+
   class << self
     def indexed_fields
       %i[title author publishing_house_id]
+    end
+
+    def data_size
+      222
+    end
+
+    def from_mem(raw_data)
+      data = raw_data.unpack(PACK_STRING)
+      return if data[0].blank?
+
+      attributes = {
+        id: data[0],
+        title: data[1],
+        description: data[2],
+        author: data[3],
+        publishing_house_id: data[4]
+      }
+
+      new(attributes)
     end
   end
 
@@ -38,6 +59,7 @@ class Book < BaseModel
 
   def attributes
     {
+      id: @id,
       title: @title,
       description: @description,
       author: @author,
@@ -51,8 +73,15 @@ class Book < BaseModel
     self.description = value[:description] || description
     self.author = value[:author] || author
     self.publishing_house_id = (
-    value[:publishing_house_id] || publishing_house_id)
+      value[:publishing_house_id] || publishing_house_id)
   end
 
   validates :title, :description, :author, :publishing_house_id, presence: true
+  validates :publishing_house_id, length: { is: 36 }
+  validates :title, :description, :author, length: { in: 2..50 }
+
+  def to_mem
+    [id, title, description, author, publishing_house_id]
+      .pack(PACK_STRING)
+  end
 end

@@ -1,7 +1,20 @@
 class PublishingHouse < BaseModel
+  PACK_STRING = 'A36A40'.freeze
+
   class << self
     def indexed_fields
-      [:name]
+      %i[name]
+    end
+
+    def data_size
+      76
+    end
+
+    def from_mem(raw_data)
+      data = raw_data.unpack(PACK_STRING)
+      return if data[0].blank?
+
+      new(id: data[0], name: data[1])
     end
   end
 
@@ -17,7 +30,7 @@ class PublishingHouse < BaseModel
   end
 
   def attributes
-    { name: @name }
+    { id: @id, name: @name }
   end
 
   def attributes=(value)
@@ -25,5 +38,9 @@ class PublishingHouse < BaseModel
     self.name = value[:name] || name
   end
 
-  validates :name, presence: true
+  validates :name, presence: true, length: { in: 2..40 }
+
+  def to_mem
+    [id, name].pack(PACK_STRING)
+  end
 end

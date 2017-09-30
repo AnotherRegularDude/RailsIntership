@@ -4,23 +4,22 @@ require 'faker'
 
 class ActiveSupport::TestCase
   def setup
-    DbManager.instance[Book.table_name] = {}
+    DbManager.instance[Book.table_name] = ''
     IndexManager.instance[Book.table_name] = {}
 
-    DbManager.instance[PublishingHouse.table_name] = {}
+    DbManager.instance[PublishingHouse.table_name] = ''
     IndexManager.instance[PublishingHouse.table_name] = {}
-
   end
 
   def publishing_house_params
-    { name: Faker::Book.publisher }
+    { name: Faker::Book.publisher.truncate(40) }
   end
 
   def book_params
     {
-      title: Faker::Book.title,
-      description: Faker::Book.genre,
-      author: Faker::Book.author
+      title: Faker::Book.title.truncate(50),
+      description: Faker::Book.genre.truncate(50),
+      author: Faker::Book.author.truncate(50)
     }
   end
 

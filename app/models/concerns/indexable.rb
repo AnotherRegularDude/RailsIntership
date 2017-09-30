@@ -4,6 +4,13 @@ module Indexable
   included do
     private
 
+    def insert_id_into_index
+      shift = (self.class.managed_data.size / self.class.data_size) - 1
+
+      self.class.managed_index[:id] ||= {}
+      self.class.managed_index[:id][id] = shift
+    end
+
     def insert_into_index(field_name)
       self.class.managed_index[field_name] ||= {}
       field_index = self.class.managed_index[field_name]
@@ -27,6 +34,10 @@ module Indexable
       restore_attributes
 
       field_index[attributes[field_name]].delete(id)
+    end
+
+    def delete_id_at_index
+      self.class.managed_index[:id].delete(id)
     end
   end
 end
