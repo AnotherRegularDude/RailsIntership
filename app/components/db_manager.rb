@@ -1,4 +1,3 @@
-
 # Manage Database Records via this singleton.
 class DbManager
   include Singleton
