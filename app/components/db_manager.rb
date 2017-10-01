@@ -6,11 +6,6 @@ class DbManager
   DUMP_PATH = Rails.root.join('tmp', 'dumped.db').freeze
   DUMPED_TABLES = [PublishingHouse.table_name, Book.table_name].freeze
 
-  # Here's if we use Hash.new({}) instead {},
-  # we will see the following behavior:
-  # Default return value is new Hash, but for books and for publishing_houses
-  # there is same Hash:
-  # DbManager.instance['books'] == DbManager.instance['publishing_houses']!
   def initialize
     @data_mappers = Hash.new { |hash, table_name| hash[table_name] = '' }
   end
@@ -28,7 +23,7 @@ class DbManager
   def load_dump
     return unless File.exist? DUMP_PATH
 
-    File.open(DUMP_PATH) do |file|
+    File.open(DUMP_PATH, 'rb') do |file|
       tables_length = file.read(DUMPED_TABLES.size * 4).unpack('L*')
 
       DUMPED_TABLES.each_with_index do |key, index|

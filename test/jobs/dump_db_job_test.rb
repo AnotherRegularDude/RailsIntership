@@ -23,6 +23,23 @@ class DumpDbJobTest < ActiveJob::TestCase
     assert_equal bk_managed_data, Book.managed_data
   end
 
+  test 'index restorability' do
+    create_books(100)
+    ph_managed_index = PublishingHouse.managed_index
+    bk_managed_index = Book.managed_index
+
+    DumpDbJob.perform_now
+    IndexManager.instance[PublishingHouse.table_name] = {}
+    IndexManager.instance[Book.table_name] = {}
+    DbManager.instance.load_dump
+
+    ph_value = ph_managed_index[:id].values[0]
+    bk_value = bk_managed_index[:id].values[0]
+
+    assert_equal ph_value, PublishingHouse.managed_index[:id].values[0]
+    assert_equal bk_value, Book.managed_index[:id].values[0]
+  end
+
   private
 
   def length_of_tables
