@@ -2,37 +2,6 @@ module TableClassConcern
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def table_name
-      name.tableize
-    end
-
-    def managed_data
-      DbManager.instance[table_name]
-    end
-
-    def managed_index
-      IndexManager.instance[table_name]
-    end
-
-    def data_position(id)
-      return if managed_index[:id][id].nil?
-
-      shift = managed_index[:id][id]
-      data_begin = shift * data_size
-      data_end = data_begin + data_size
-
-      [data_begin, data_end]
-    end
-
-    def data_position_by_shift(shift)
-      return if shift * data_size >= managed_data.size
-
-      data_begin = shift * data_size
-      data_end = data_begin + data_size
-
-      [data_begin, data_end]
-    end
-
     def create(params)
       if params.is_a? Array
         params.each do |instance_params|
@@ -62,21 +31,18 @@ module TableClassConcern
     end
 
     def select_where(query)
-      query_copy = query.dup
-      index_result = index_where(query_copy) || managed_data.keys
+      query_dup = query.dup
+      index_result = index_where(query_dup) || managed_data.keys
 
-      filter_by_query(index_result, query_copy)
+      filter_by_query(index_result, query_dup)
     end
 
-    # FIXME: Rewrite filter by index.
     def index_where(query)
       indexed_query = query.slice(*indexed_fields)
       return nil if indexed_query.size.zero?
 
-      min_key, min_value = min_index(indexed_query)
-
-      query.delete(min_key)
-      managed_index[min_key][min_value]
+      query.except!(*indexed_fields)
+      union_indexes(indexed_query)
     end
 
     def all
@@ -90,32 +56,12 @@ module TableClassConcern
       PaginationDecorator.new(data_to_paginate)
     end
 
-    # FIXME: Refactor rubocop warnings.
-    def vacuum_optimize
-      times_to_shift = 0
-      shift = 0
-
-      while data_position_by_shift(shift).present?
-        from, to = data_position_by_shift(shift)
-        obj = from_mem(managed_data[from...to])
-
-        if obj.nil?
-          managed_data[from...to] = ''
-          times_to_shift += 1
-        else
-          managed_index[:id][obj.id] -= times_to_shift
-          shift += 1
-        end
-      end
-    end
-
     def fully_refresh_index
       IndexManager.instance[table_name] = {}
       max_shift = managed_data.size / data_size
 
       max_shift.times do |shift|
-        from, to = data_position_by_shift(shift)
-        from_mem(managed_data[from...to]).index_data(shift)
+        from_mem(managed_data_by_shift(shift)).index_data(shift)
       end
     end
 
@@ -141,6 +87,8 @@ module TableClassConcern
     end
 
     def filter_by_query(ids_to_filter, filter_query)
+      PaginationDecorator.new(ids_to_filter) if filter_query.empty?
+
       selected = ids_to_filter.map do |id|
         select_flag = true
         next if data_position(id).nil?
@@ -156,11 +104,17 @@ module TableClassConcern
       PaginationDecorator.new(selected)
     end
 
-    def min_index(query_on_index)
-      query_on_index.min_by do |k, v|
-        managed_index[k][v] ||= []
-        managed_index[k][v].length
+    def union_indexes(indexed_query)
+      first_arg = indexed_query.shift
+      unioned = managed_index[first_arg[0]].fetch(first_arg[1], [])
+
+      indexed_query.each do |key, value|
+        break if unioned.empty?
+
+        unioned & managed_index[key].fetch(value, [])
       end
+
+      unioned
     end
   end
 end

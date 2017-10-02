@@ -3,11 +3,51 @@ class BaseModel
   include Indexable
   include Relational
   include TableClassConcern
+  include DataPlaceOptimizable
 
   include ActiveModel::Dirty
   include ActiveModel::Model
 
   attr_reader :id
+
+  class << self
+    def table_name
+      name.tableize
+    end
+
+    def managed_data
+      DbManager.instance[table_name]
+    end
+
+    def managed_index
+      IndexManager.instance[table_name]
+    end
+
+    def data_position(id)
+      return if managed_index[:id][id].nil?
+
+      shift = managed_index[:id][id]
+      data_begin = shift * data_size
+      data_end = data_begin + data_size
+
+      [data_begin, data_end]
+    end
+
+    def data_position_by_shift(shift)
+      return if shift * data_size >= managed_data.size
+
+      data_begin = shift * data_size
+      data_end = data_begin + data_size
+
+      [data_begin, data_end]
+    end
+
+    def managed_data_by_shift(shift)
+      from, to = data_position_by_shift(shift)
+
+      managed_data[from...to]
+    end
+  end
 
   def data_position
     self.class.data_position(id)

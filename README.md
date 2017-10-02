@@ -17,4 +17,4 @@
 * Change **Hash** in *DbManager* to **String**, which stores raw data **✓**
 * Make **Database** dump to file every 5 minutes **✓**
 * **Database** can be loaded from dump **✓**
-* Fix **Index**
+* Fix **Index** **✓**

@@ -2,7 +2,6 @@
 class DbManager
   include Singleton
 
-  # TODO: Think about load_dump realization.
   DUMP_PATH = Rails.root.join('tmp', 'dumped.db').freeze
   DUMPED_TABLES = [PublishingHouse.table_name, Book.table_name].freeze
 
